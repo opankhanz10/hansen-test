@@ -1,0 +1,69 @@
+1. SELECT
+   	c.CUST_ID AS customer_id,
+   	concate(c.CUST_FIRSTNAME,
+   	' ',
+   	c.CUST_LASTNAME) AS fullname,
+   	a.ACC_NUMBER AS account_number,
+   	tt.STATUS AS transaction_status,
+   	count(0),
+   	sum(t.TRS_AMOUNT)
+   FROM
+   	CUSTOMER c
+   INNER JOIN ACCOUNT a
+   ON
+   	c.CUST_ID = a.ACC_OWNER
+   INNER JOIN TRANSACTION t
+   ON
+   	TRS_FROM_ACCOUNT = a.ACCOUNT_NUMBER
+   INNER JOIN TRANSACTION_TRANSFER tt
+   ON
+   	t.TRS_ID = tt.TRS_ID
+   GROUP BY c.CUST_ID,concate(c.CUST_FIRSTNAME,
+   	' ',
+   	c.CUST_LASTNAME), a.ACC_NUMBER;
+
+2. SELECT
+   	c.CUST_ID AS customer_id,
+   	concate(c.CUST_FIRSTNAME,
+   	' ',
+   	c.CUST_LASTNAME) AS fullname,
+   	CASE
+   		WHEN c.CUST_GENDER = 1 THEN 'Male'
+   		ELSE 'Female'
+   	END AS gender,
+   	a.ACC_NUMBER AS account_number,
+   	CASE
+   		WHEN t.TRS_TYPE = 'DB' THEN 'Debit Transaction'
+   		WHEN t.TRS_TYPE = 'CR' THEN 'Credit transaction'
+   		ELSE 'Money Transfer'
+   	END AS transaction_type,
+   	tt.TRS_TO_ACCOUNT AS to_account,
+   	concate(c2.CUST_FIRSTNAME,
+   	' ',
+   	c2.CUST_LASTNAME) AS to_fullname,
+   	t.TRS_DATE AS transaction_date,
+   	t.TRS_AMOUNT AS transaction_amount,
+   	tt.STATUS AS transaction_status
+   FROM
+   	CUSTOMER c
+   INNER JOIN ACCOUNT a
+   ON
+   	c.CUST_ID = a.ACC_OWNER
+   INNER JOIN TRANSACTION t
+   ON
+   	TRS_FROM_ACCOUNT = a.ACCOUNT_NUMBER
+   INNER JOIN TRANSACTION_TRANSFER tt
+   ON
+   	t.TRS_ID = tt.TRS_ID
+   INNER JOIN ACCOUNT a2
+   ON
+   	a2.ACC_NUMBER = tt.TRS_TO_ACCOUNT
+   INNER JOIN CUSTOMER c2
+   ON
+   	c2.CUST_ID = a2.ACC_OWNER
+
+   WHEN
+   	concate(c.CUST_FIRSTNAME,
+   	' ',
+   	c.CUST_LASTNAME) = 'John Michael'
+   ORDER BY a.ACC_NUMBER, t.TRS_DATE DESC;
